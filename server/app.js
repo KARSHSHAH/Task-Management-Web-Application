@@ -21,9 +21,22 @@ app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/notes', noteRoutes);
 
-// Root route for testing
-app.get('/', (req, res) => {
+// Root route for API testing
+app.get('/api', (req, res) => {
   res.send('TaskFlow API is running...');
+});
+
+// Serve frontend in production
+const path = require('path');
+const clientBuildPath = path.join(__dirname, '../client/dist');
+app.use(express.static(clientBuildPath));
+
+// Catch-all route to serve the React app (excluding /api requests)
+app.use((req, res, next) => {
+  if (req.path.startsWith('/api')) {
+    return next();
+  }
+  res.sendFile(path.join(clientBuildPath, 'index.html'));
 });
 
 // Error Handling Middleware
